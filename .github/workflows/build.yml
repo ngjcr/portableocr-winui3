@@ -21,6 +21,16 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
+      - name: Import bundled OCR runtime
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "PortableOCR-Runtime.zip")) {
+            throw "PortableOCR-Runtime.zip is missing from the repository root."
+          }
+          $runtime = "PortableOCR.WinUI3/runtime"
+          New-Item -ItemType Directory -Force -Path $runtime | Out-Null
+          Expand-Archive -Path "PortableOCR-Runtime.zip" -DestinationPath $runtime -Force
+
       - name: Verify OCR runtime
         shell: pwsh
         run: |
@@ -36,7 +46,6 @@ jobs:
             "PortableOCR.WinUI3/runtime/engines/poppler/bin/pdftotext.exe",
             "PortableOCR.WinUI3/runtime/engines/preprocess/preprocess.exe"
           )
-
           foreach ($file in $required) {
             if (-not (Test-Path $file)) {
               throw "Missing portable runtime file: $file"
@@ -64,11 +73,9 @@ jobs:
           if (-not (Test-Path "publish/PortableOCR/PortableOCR.exe")) {
             throw "PortableOCR.exe was not produced."
           }
-
           if (-not (Test-Path "publish/PortableOCR/runtime/engines/tesseract/tesseract.exe")) {
             throw "Tesseract was not copied into the portable folder."
           }
-
           if (-not (Test-Path "publish/PortableOCR/runtime/engines/preprocess/preprocess.exe")) {
             throw "Preprocessing engine was not copied into the portable folder."
           }
