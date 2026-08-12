@@ -1,0 +1,53 @@
+<Application
+    x:Class="PortableOCR.WinUI3.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Default">
+                    <SolidColorBrush x:Key="AppSurfaceBrush" Color="#D9141720"/>
+                    <SolidColorBrush x:Key="AppSurfaceStrongBrush" Color="#F21B1F2A"/>
+                    <SolidColorBrush x:Key="AppSurfaceSubtleBrush" Color="#801E2430"/>
+                    <SolidColorBrush x:Key="AppStrokeBrush" Color="#28FFFFFF"/>
+                    <SolidColorBrush x:Key="AppTextSecondaryBrush" Color="#AFC9D0DB"/>
+                    <SolidColorBrush x:Key="AppTextTertiaryBrush" Color="#7FABB4C2"/>
+                    <SolidColorBrush x:Key="SuccessBrush" Color="#6ED6A5"/>
+                    <SolidColorBrush x:Key="DangerBrush" Color="#FF858D"/>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="AppSurfaceBrush" Color="#D9FFFFFF"/>
+                    <SolidColorBrush x:Key="AppSurfaceStrongBrush" Color="#F7FFFFFF"/>
+                    <SolidColorBrush x:Key="AppSurfaceSubtleBrush" Color="#70FFFFFF"/>
+                    <SolidColorBrush x:Key="AppStrokeBrush" Color="#18000000"/>
+                    <SolidColorBrush x:Key="AppTextSecondaryBrush" Color="#A3424751"/>
+                    <SolidColorBrush x:Key="AppTextTertiaryBrush" Color="#7A59616D"/>
+                    <SolidColorBrush x:Key="SuccessBrush" Color="#16875E"/>
+                    <SolidColorBrush x:Key="DangerBrush" Color="#C43A48"/>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+
+            <Style x:Key="CardStyle" TargetType="Border">
+                <Setter Property="Background" Value="{ThemeResource AppSurfaceBrush}"/>
+                <Setter Property="BorderBrush" Value="{ThemeResource AppStrokeBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="CornerRadius" Value="18"/>
+            </Style>
+            <Style x:Key="SoftButtonStyle" TargetType="Button">
+                <Setter Property="MinHeight" Value="36"/>
+                <Setter Property="Padding" Value="14,7"/>
+                <Setter Property="CornerRadius" Value="10"/>
+            </Style>
+            <Style x:Key="IconButtonStyle" TargetType="Button" BasedOn="{StaticResource SoftButtonStyle}">
+                <Setter Property="Width" Value="38"/>
+                <Setter Property="Padding" Value="0"/>
+            </Style>
+            <Style x:Key="ProfileToggleStyle" TargetType="ToggleButton">
+                <Setter Property="MinHeight" Value="58"/>
+                <Setter Property="Padding" Value="14,8"/>
+                <Setter Property="CornerRadius" Value="12"/>
+                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
