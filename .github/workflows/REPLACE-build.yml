@@ -1,0 +1,100 @@
+name: Build PortableOCR WinUI 3
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Download OCR runtime release
+        shell: pwsh
+        run: |
+          $url = "https://github.com/ngjcr/portableocr-winui3/releases/download/runtime/PortableOCR-Runtime.zip"
+          curl.exe -fL --retry 3 --retry-delay 2 "$url" -o "PortableOCR-Runtime.zip"
+          if (-not (Test-Path "PortableOCR-Runtime.zip")) {
+            throw "Runtime download failed."
+          }
+
+      - name: Import OCR runtime
+        shell: pwsh
+        run: |
+          $runtime = "PortableOCR.WinUI3/runtime"
+          if (Test-Path $runtime) {
+            Remove-Item -Recurse -Force $runtime
+          }
+          New-Item -ItemType Directory -Force -Path $runtime | Out-Null
+          Expand-Archive -Path "PortableOCR-Runtime.zip" -DestinationPath $runtime -Force
+
+      - name: Verify OCR runtime
+        shell: pwsh
+        run: |
+          $required = @(
+            "PortableOCR.WinUI3/runtime/engines/tesseract/tesseract.exe",
+            "PortableOCR.WinUI3/runtime/engines/tesseract/models/fast/eng.traineddata",
+            "PortableOCR.WinUI3/runtime/engines/tesseract/models/balanced/eng.traineddata",
+            "PortableOCR.WinUI3/runtime/engines/tesseract/models/best/eng.traineddata",
+            "PortableOCR.WinUI3/runtime/engines/poppler/bin/pdfinfo.exe",
+            "PortableOCR.WinUI3/runtime/engines/poppler/bin/pdftoppm.exe",
+            "PortableOCR.WinUI3/runtime/engines/poppler/bin/pdfunite.exe",
+            "PortableOCR.WinUI3/runtime/engines/poppler/bin/pdfseparate.exe",
+            "PortableOCR.WinUI3/runtime/engines/poppler/bin/pdftotext.exe",
+            "PortableOCR.WinUI3/runtime/engines/preprocess/preprocess.exe"
+          )
+          foreach ($file in $required) {
+            if (-not (Test-Path $file)) {
+              throw "Missing portable runtime file: $file"
+            }
+          }
+
+      - name: Restore
+        run: dotnet restore PortableOCR-WinUI3.sln
+
+      - name: Publish portable x64
+        shell: pwsh
+        run: |
+          dotnet publish PortableOCR.WinUI3/PortableOCR.WinUI3.csproj `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            -p:WindowsAppSDKSelfContained=true `
+            -p:PublishTrimmed=false `
+            -p:PublishSingleFile=false `
+            -o "$env:GITHUB_WORKSPACE/publish/PortableOCR"
+
+      - name: Verify portable executable
+        shell: pwsh
+        run: |
+          $required = @(
+            "publish/PortableOCR/PortableOCR.exe",
+            "publish/PortableOCR/runtime/engines/tesseract/tesseract.exe",
+            "publish/PortableOCR/runtime/engines/poppler/bin/pdfinfo.exe",
+            "publish/PortableOCR/runtime/engines/preprocess/preprocess.exe"
+          )
+          foreach ($file in $required) {
+            if (-not (Test-Path $file)) {
+              throw "Portable build missing: $file"
+            }
+          }
+
+      - name: Upload portable application
+        uses: actions/upload-artifact@v4
+        with:
+          name: PortableOCR-WinUI3-Windows-x64
+          path: publish/PortableOCR
+          if-no-files-found: error
+          compression-level: 6
